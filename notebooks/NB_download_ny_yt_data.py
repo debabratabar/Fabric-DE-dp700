@@ -22,8 +22,8 @@ par_datepart='2025-01'
 par_url='https://d37ci6vzurychx.cloudfront.net'
 par_filename='yellow_tripdata'
 par_directory ='trip-data'
-par_actual_url=f"{par_url}/{par_directory}/{par_filename}_{datepart}.parquet"
-par_output_path = f"Files/newyork-data/yellow_taxi_data_{datepart}/"
+par_actual_url=f"{par_url}/{par_directory}/{par_filename}_{par_datepart}.parquet"
+par_output_path = f"Files/newyork-data/yellow_taxi_data_{par_datepart}/"
 
 
 # In[18]:
