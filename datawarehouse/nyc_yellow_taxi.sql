@@ -1,25 +1,61 @@
-SELECT max(tpep_pickup_datetime) , min(tpep_pickup_datetime)   from stg.nyctaxi_yellow
+CREATE SCHEMA stg;
+GO
+CREATE PROCEDURE
+    stg.nyctaxi_yellow_tbl_cleaning
+    @end_dt DATETIME2,
+    @strt_dt DATETIME2
+    AS
+        DELETE FROM
+            stg.nyctaxi_yellow
+        WHERE
+            tpep_pickup_datetime < @strt_dt
+            OR
+                tpep_pickup_datetime > @end_dt;
+GO
+CREATE SCHEMA metadata;
+GO
 
 
-delete from  stg.nyctaxi_yellow
-where tpep_pickup_datetime < '2025-01-01' 
-or tpep_pickup_datetime > '2025-02-01'
+CREATE TABLE
+    metadata.processing_log (
+        pipeline_run_id VARCHAR (255),
+        processed_tbl_name VARCHAR (255),
+        rows_processed INT,
+        latest_processed_pickup DATETIME2 (6),
+        processed_datetime DATETIME2 (6)
+    );
+GO
 
-select count(1) from stg.nyctaxi_yellow
 
-
-alter procedure stg.nyctaxi_yellow_tbl_cleaning
-@end_dt DATETIME2,
-@strt_dt DATETIME2
+CREATE PROCEDURE
+    metadata.insert_staging_metadata
+    @pipeline_run_id VARCHAR (255),
+    @tbl_name VARCHAR (255),
+    @process_date AS DATE
 AS
-delete from  stg.nyctaxi_yellow
-where tpep_pickup_datetime < @strt_dt
- or tpep_pickup_datetime > @end_dt ; 
+    INSERT INTO
+        metadata.processing_log (
+            pipeline_run_id,processed_tbl_name,rows_processed,latest_processed_pickup,processed_datetime)
+        SELECT
+            @pipeline_run_id AS pipeline_run_id,
+            @tbl_name AS processed_tbl_name,
+            count (1)
+            AS rows_processed,
+            MAX (tpep_pickup_datetime) AS latest_processed_pickup,
+            @process_date AS processed_datetime
+        FROM
+            stg.nyctaxi_yellow ;
+GO
+
+    SELECT * FROM metadata.processing_log
+
+        SELECT * FROM stg.nyctaxi_yellow
 
 
+SELECT top 1 latest_processed_pickup
+from metadata.processing_log
+where processed_tbl_name = 'stg.nyctaxi_yellow'
+ORDER by latest_processed_pickup desc
 
 
-
-
-
-
+SELECT MAX(tpep_pickup_datetime) , MIN(tpep_pickup_datetime) from stg.nyctaxi_yellow 
