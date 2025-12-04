@@ -103,3 +103,5 @@ ORDER by latest_processed_pickup desc
 
 
 SELECT MAX(tpep_pickup_datetime) , MIN(tpep_pickup_datetime) from stg.nyctaxi_yellow 
+
+SELECT MAX(tpep_pickup_datetime) , MIN(tpep_pickup_datetime) from dbo.nyctaxi_yellow 
